@@ -1,25 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./App.css";
 
-function App() {
+const App = () => {
+  const [countries, setCountries] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    console.log("Fetching countries data...");
+    fetch("https://xcountries-backend.azurewebsites.net/all")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Data fetched:", data);
+        setCountries(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setError(error);
+      });
+  }, []);
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Countries and Flags</h1>
+      <div className="countries-container">
+        {countries.map((country) => (
+          <div key={country.name} className="country">
+            <img
+              src={country.flag}
+              alt={`Flag of ${country.name}`}
+              className="flag"
+            />
+            <p>{country.name}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
 
 export default App;
